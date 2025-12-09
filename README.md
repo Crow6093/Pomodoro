@@ -19,6 +19,12 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
   - Frameless design with custom, colored window controls.
   - Single-instance lock (bringing the existing window to front if you try to open it again).
 
+## Interface 📸
+
+| Pomodoro Timer | Tasks | Settings |
+|:---:|:---:|:---:|
+| <img src="assets/Ui_Pomodoro.png" width="300" /> | <img src="assets/Ui_Tareas.png" width="300" /> | <img src="assets/Ui_Ajustes.png" width="300" /> |
+
 ## Installation 🛠️
 
 1.  **Clone the repository**:
