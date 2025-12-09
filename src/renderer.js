@@ -40,6 +40,13 @@ function updateTimerDisplay() {
     // Update Ring
     const percent = (currentTime / totalTime) * 100;
     setProgress(percent);
+
+    // Urgent Alert (< 10%)
+    if (percent < 10) {
+        progressRing.classList.add('urgent');
+    } else {
+        progressRing.classList.remove('urgent');
+    }
 }
 
 function startTimer() {
@@ -130,7 +137,7 @@ btnAdd.addEventListener('click', () => {
     if (isPomodoro) {
         // Add 5 minutes to timer
         currentTime += 5 * 60;
-        // Optional: Cap at some max? Or update totalTime? 
+        totalTime += 5 * 60; // Update total duration so the ring scales correctly 
         // Usually extend current session. keeping it simple.
         updateTimerDisplay();
         new Notification('Time Added', { body: '+5 Minutes added!' });

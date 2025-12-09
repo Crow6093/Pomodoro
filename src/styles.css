@@ -7,6 +7,8 @@
     /* Minty green */
     --accent-pink: #F48FB1;
     --white: #FFFFFF;
+    --urgent-red: #FFAB91;
+    /* Pastel Red */
     --font-family: 'Nunito', sans-serif;
 }
 
@@ -152,7 +154,7 @@ main {
 }
 
 .progress-ring__circle {
-    transition: 0.35s stroke-dashoffset;
+    transition: 0.35s stroke-dashoffset, 0.35s stroke;
     /* Circumference = 2 * PI * 90 = 565.48 (Updated for smaller circle) */
     stroke-dasharray: 565.48 565.48;
     stroke-dashoffset: 0;
@@ -160,6 +162,10 @@ main {
     transform-origin: 50% 50%;
     transform: rotate(-90deg);
     stroke-linecap: round;
+}
+
+.progress-ring__circle.urgent {
+    stroke: var(--urgent-red);
 }
 
 .timer-text {
@@ -181,14 +187,14 @@ main {
 }
 
 .character-left {
-    left: 10px;
+    left: -45px;
     bottom: 0;
     font-size: 2.5rem;
     animation-delay: 0.5s;
 }
 
 .character-right {
-    right: 10px;
+    right: -30px;
     top: 10%;
     font-size: 2.2rem;
     animation-delay: 1s;
