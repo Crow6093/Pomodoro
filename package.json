@@ -1,0 +1,42 @@
+{
+    "name": "cute-pomodoro",
+    "version": "1.0.0",
+    "description": "A cute Adventure Time-inspired Pomodoro timer",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder"
+    },
+    "build": {
+        "appId": "com.cute.pomodoro",
+        "productName": "Cute Pomodoro",
+        "directories": {
+            "output": "dist"
+        },
+        "win": {
+            "target": [
+                "nsis",
+                "portable"
+            ],
+            "icon": "assets/Pomodoro.png"
+        },
+        "mac": {
+            "target": "dmg",
+            "icon": "assets/Pomodoro.png"
+        },
+        "files": [
+            "**/*",
+            "!dist/*"
+        ],
+        "asarUnpack": [
+            "assets/*"
+        ]
+    },
+    "keywords": [],
+    "author": "Crow6093",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^24.9.1"
+    }
+}
