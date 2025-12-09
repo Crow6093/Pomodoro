@@ -58,4 +58,4 @@ This will generate the installers in the `dist/` folder.
 
 ## Author 👤
 
-Created with ❤️ by Cuantu.
+Created with ❤️ by Crow6093.
