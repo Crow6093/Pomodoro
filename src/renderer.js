@@ -22,6 +22,7 @@ let isRunning = false;
 const radius = progressRing.r.baseVal.value;
 const circumference = radius * 2 * Math.PI;
 let tasks = []; // Shared task state
+let isWidgetEnabled = true; // Widget toggle state
 
 // Initialize Ring
 progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
@@ -47,6 +48,18 @@ function updateTimerDisplay() {
     } else {
         progressRing.classList.remove('urgent');
     }
+
+    // Send update to main process for widget
+    try {
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.send('update-timer', {
+            time: timeDisplay.textContent,
+            percent: percent,
+            enabled: isWidgetEnabled
+        });
+    } catch (e) {
+        // Electron not available
+    }
 }
 
 function startTimer() {
@@ -67,11 +80,19 @@ function startTimer() {
 
             // Play Sound
             const path = require('path');
-            let soundPath = path.join(__dirname, '../assets/alarma.mp3');
-            // Fix for ASAR: HTML5 Audio needs unpacked file
-            if (soundPath.includes('app.asar')) {
-                soundPath = soundPath.replace('app.asar', 'app.asar.unpacked');
+            const customSound = localStorage.getItem('customAlarm');
+            let soundPath;
+
+            if (customSound) {
+                soundPath = customSound;
+            } else {
+                soundPath = path.join(__dirname, '../assets/alarma.mp3');
+                // Fix for ASAR: HTML5 Audio needs unpacked file
+                if (soundPath.includes('app.asar')) {
+                    soundPath = soundPath.replace('app.asar', 'app.asar.unpacked');
+                }
             }
+
             const audio = new Audio(soundPath);
             audio.play().catch(e => console.error("Error playing sound:", e));
 
@@ -141,6 +162,23 @@ btnAdd.addEventListener('click', () => {
         // Usually extend current session. keeping it simple.
         updateTimerDisplay();
         new Notification('Time Added', { body: '+5 Minutes added!' });
+
+        // Floating +5 Animation
+        const floatingEl = document.createElement('div');
+        floatingEl.textContent = '+5';
+        floatingEl.classList.add('floating-plus-five');
+
+        // Position it near the button
+        const rect = btnAdd.getBoundingClientRect();
+        floatingEl.style.left = `${rect.left + rect.width / 2}px`;
+        floatingEl.style.top = `${rect.top - 20}px`; // Start slightly above button
+
+        document.body.appendChild(floatingEl);
+
+        // Remove after 2.5s
+        setTimeout(() => {
+            floatingEl.remove();
+        }, 2500);
     } else if (isTareas) {
         toggleForm(addTaskFormFull, newTaskInputFull);
     }
@@ -243,6 +281,51 @@ window.deleteTask = function (id) {
 const timeButtons = document.querySelectorAll('.btn-time');
 const customInput = document.getElementById('custom-time-input');
 const btnSetCustom = document.getElementById('btn-set-custom');
+const widgetToggle = document.getElementById('widget-toggle');
+
+// Sound Selection Logic
+const btnSelectSound = document.getElementById('btn-select-sound');
+const currentSoundLabel = document.getElementById('current-sound-label');
+const btnResetSound = document.getElementById('btn-reset-sound');
+const { ipcRenderer } = require('electron'); // Ensure imported
+
+// Initial Load
+if (localStorage.getItem('customAlarm')) {
+    const savedPath = localStorage.getItem('customAlarm');
+    currentSoundLabel.textContent = savedPath.split(/[/\\]/).pop();
+    btnResetSound.style.display = 'inline-block';
+} else {
+    btnResetSound.style.display = 'none';
+}
+
+if (btnResetSound) {
+    btnResetSound.addEventListener('click', () => {
+        localStorage.removeItem('customAlarm');
+        currentSoundLabel.textContent = 'Default';
+        btnResetSound.style.display = 'none';
+    });
+}
+
+if (btnSelectSound) {
+    btnSelectSound.addEventListener('click', async () => {
+        const filePath = await ipcRenderer.invoke('open-sound-dialog');
+        if (filePath) {
+            localStorage.setItem('customAlarm', filePath);
+            currentSoundLabel.textContent = filePath.split(/[/\\]/).pop();
+            btnResetSound.style.display = 'inline-block';
+            // Optional preview
+            const audio = new Audio(filePath);
+            audio.play().catch(e => console.error(e));
+        }
+    });
+}
+
+if (widgetToggle) {
+    widgetToggle.addEventListener('change', (e) => {
+        isWidgetEnabled = e.target.checked;
+        updateTimerDisplay(); // Force update to notify main process immediately
+    });
+}
 
 timeButtons.forEach(btn => {
     btn.addEventListener('click', () => {

@@ -37,88 +37,113 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main id="pomodoro" class="tab-content active">
-        <div class="timer-container">
-            <!-- Decorative elements mimicking the design -->
-            <div class="deco-star" style="top: 20%; left: 10%;">⭐</div>
-            <!-- <div class="deco-heart" style="top: 15%; right: 10%;">💖</div>-->
+    <!-- Main Content Area -->
+    <main>
+        <div id="pomodoro" class="tab-content active"
+            style="display: flex; flex-direction: column; width: 100%; align-items: center;">
+            <div class="timer-container">
+                <!-- Decorative elements mimicking the design -->
+                <div class="deco-star" style="top: 20%; left: 10%;">⭐</div>
+                <!-- <div class="deco-heart" style="top: 15%; right: 10%;">💖</div>-->
 
-            <div class="timer-circle-outer">
-                <svg class="progress-ring" width="200" height="200">
-                    <circle class="progress-ring__circle-bg" stroke="#E0E0E0" stroke-width="15" fill="white" r="90"
-                        cx="100" cy="100" />
-                    <circle class="progress-ring__circle" stroke="#FFD54F" stroke-width="15" fill="transparent" r="90"
-                        cx="100" cy="100" />
-                </svg>
-                <div class="timer-text">
-                    <span id="time-display">25:00</span>
+                <div class="timer-circle-outer">
+                    <svg class="progress-ring" width="200" height="200">
+                        <circle class="progress-ring__circle-bg" stroke="#E0E0E0" stroke-width="15" fill="white" r="90"
+                            cx="100" cy="100" />
+                        <circle class="progress-ring__circle" stroke="#FFD54F" stroke-width="15" fill="transparent"
+                            r="90" cx="100" cy="100" />
+                    </svg>
+                    <div class="timer-text">
+                        <span id="time-display">25:00</span>
+                    </div>
+                </div>
+
+                <!-- Little cute characters (Generic CSS placeholders or emojis for now) -->
+                <div class="character-left"><img src="../assets/GatoPomodoro.svg" alt="Cute Cat"
+                        style="width: 11rem; height: auto;"></div>
+                <div class="character-right"><img src="../assets/GatoLibro.svg" alt="Reading Cat"
+                        style="width: 10rem; height: auto;"></div>
+            </div>
+
+            <div class="tasks-container">
+                <div class="tasks-header">
+                    <h3>Tareas</h3>
+                </div>
+
+
+
+                <div class="task-list" id="task-list">
+                    <!-- Tasks will be injected here -->
+                    <div class="task-item">
+                        <input type="checkbox" id="task1">
+                        <label for="task1">Estudiar programación</label>
+                        <span class="task-icon">🌈</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Little cute characters (Generic CSS placeholders or emojis for now) -->
-            <div class="character-left"><img src="../assets/GatoPomodoro.svg" alt="Cute Cat"
-                    style="width: 11rem; height: auto;"></div>
-            <div class="character-right"><img src="../assets/GatoLibro.svg" alt="Reading Cat"
-                    style="width: 10rem; height: auto;"></div>
         </div>
 
-        <div class="tasks-container">
-            <div class="tasks-header">
-                <h3>Tareas</h3>
+        <div id="tareas" class="tab-content" style="display: none;">
+            <div class="tasks-container" style="height: 100%; box-shadow: none;">
+                <div class="tasks-header">
+                    <h3>Lista de Tareas</h3>
+                </div>
+
+                <div id="add-task-form-full" style="display: none; padding: 10px; border-bottom: 1px solid #eee;">
+                    <input type="text" id="new-task-input-full" placeholder="Nueva tarea..."
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+                </div>
+
+                <div class="task-list" id="task-list-full">
+                    <!-- Full task list -->
+                </div>
             </div>
+        </div>
 
+        <div id="ajustes" class="tab-content" style="display: none;">
+            <div class="settings-container" style="text-align: center; padding: 20px;">
+                <h3>Duración del Pomodoro</h3>
+                <div class="time-options">
+                    <button class="btn-time" data-time="15">15 min</button>
+                    <button class="btn-time active" data-time="25">25 min</button>
+                    <button class="btn-time" data-time="35">35 min</button>
+                </div>
 
+                <div class="custom-time">
+                    <label>Personalizado (min):</label>
+                    <input type="number" id="custom-time-input" min="1" max="120" placeholder="Ej. 60">
+                    <button id="btn-set-custom" class="btn-small">Aplicar</button>
+                </div>
 
-            <div class="task-list" id="task-list">
-                <!-- Tasks will be injected here -->
-                <div class="task-item">
-                    <input type="checkbox" id="task1">
-                    <label for="task1">Estudiar programación</label>
-                    <span class="task-icon">🌈</span>
+                <div class="setting-item"
+                    style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                    <label for="widget-toggle" style="font-size: 1.1rem; font-weight: 600;">Widget Flotante:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="widget-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item" style="margin-top: 15px; text-align: center;">
+                    <h4 style="margin: 0 0 10px 0; color: #546E7A;">Sonido de Alarma</h4>
+                    <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+                        <button id="btn-select-sound" class="btn-small"
+                            style="background:var(--accent-yellow); color: #546E7A;">Seleccionar Archivo</button>
+                        <span id="current-sound-label"
+                            style="font-size: 0.9rem; opacity: 0.7; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Default</span>
+                        <button id="btn-reset-sound"
+                            style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#FF5F56;">✖</button>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <div id="tareas" class="tab-content" style="display: none;">
-        <div class="tasks-container" style="height: 100%; box-shadow: none;">
-            <div class="tasks-header">
-                <h3>Lista de Tareas</h3>
-            </div>
-
-            <div id="add-task-form-full" style="display: none; padding: 10px; border-bottom: 1px solid #eee;">
-                <input type="text" id="new-task-input-full" placeholder="Nueva tarea..."
-                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
-            </div>
-
-            <div class="task-list" id="task-list-full">
-                <!-- Full task list -->
-            </div>
-        </div>
-    </div>
-
-    <div id="ajustes" class="tab-content" style="display: none;">
-        <div class="settings-container" style="text-align: center; padding: 20px;">
-            <h3>Duración del Pomodoro</h3>
-            <div class="time-options">
-                <button class="btn-time" data-time="15">15 min</button>
-                <button class="btn-time active" data-time="25">25 min</button>
-                <button class="btn-time" data-time="35">35 min</button>
-            </div>
-
-            <div class="custom-time">
-                <label>Personalizado (min):</label>
-                <input type="number" id="custom-time-input" min="1" max="120" placeholder="Ej. 60">
-                <button id="btn-set-custom" class="btn-small">Aplicar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Bottom Controls -->
     <footer class="controls">
         <button id="btn-start" class="btn btn-main">Iniciar</button>
         <button id="btn-pause" class="btn btn-secondary">Pausa</button>
-        <button id="btn-add" class="btn btn-icon">+</button>
+        <button id="btn-add" class="btn btn-icon">⏰</button>
     </footer>
 
     <script src="renderer.js"></script>

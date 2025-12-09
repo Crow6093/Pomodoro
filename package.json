@@ -1,6 +1,6 @@
 {
     "name": "cute-pomodoro",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A cute Adventure Time-inspired Pomodoro timer",
     "main": "main.js",
     "scripts": {

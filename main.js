@@ -1,8 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
 
+let mainWindow;
+let widgetWindow;
+
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 400,
         height: 600,
         resizable: false,
@@ -16,6 +19,26 @@ function createWindow() {
     });
 
     mainWindow.loadFile(path.join(__dirname, 'src/index.html'));
+}
+
+function createWidgetWindow() {
+    widgetWindow = new BrowserWindow({
+        width: 150,
+        height: 80,
+        resizable: false,
+        frame: false,
+        transparent: true,
+        alwaysOnTop: true,
+        skipTaskbar: true,
+        focusable: false, // Don't take focus
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        },
+        show: false // Start hidden
+    });
+
+    widgetWindow.loadFile(path.join(__dirname, 'src/widget.html'));
 }
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -34,9 +57,7 @@ if (!gotTheLock) {
 
     app.whenReady().then(() => {
         createWindow();
-
-        // Ensure ipcMain is available
-        const { ipcMain } = require('electron');
+        createWidgetWindow();
 
         app.on('activate', function () {
             if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -44,22 +65,56 @@ if (!gotTheLock) {
 
         // IPC Handlers
         ipcMain.on('timer-finished', () => {
-            const win = BrowserWindow.getAllWindows()[0];
-            if (win) {
-                if (win.isMinimized()) win.restore();
-                win.show();
-                win.focus();
+            if (widgetWindow && widgetWindow.isVisible()) {
+                widgetWindow.hide();
+            }
+            if (mainWindow) {
+                if (mainWindow.isMinimized()) mainWindow.restore();
+                mainWindow.show();
+                mainWindow.focus();
             }
         });
 
         ipcMain.on('minimize-app', () => {
-            const win = BrowserWindow.getFocusedWindow();
-            if (win) win.minimize();
+            if (mainWindow) mainWindow.minimize();
         });
 
         ipcMain.on('close-app', () => {
-            const win = BrowserWindow.getFocusedWindow();
-            if (win) win.close();
+            if (mainWindow) mainWindow.close();
+            // App will close naturally due to window-all-closed
+        });
+
+        ipcMain.on('update-timer', (event, { time, percent, enabled }) => {
+            if (!widgetWindow || !mainWindow) return;
+
+            // Always update content
+            widgetWindow.webContents.send('update-time', { time, percent });
+
+            // Logic to show/hide
+            // Show if enabled AND minimized AND percent < 25
+            if (enabled && mainWindow.isMinimized() && percent < 25) {
+                if (!widgetWindow.isVisible()) {
+                    const primaryDisplay = screen.getPrimaryDisplay();
+                    const { width } = primaryDisplay.workAreaSize;
+                    // Position top right: x = width - widgetWidth - margin, y = margin
+                    widgetWindow.setPosition(width - 170, 20);
+                    widgetWindow.showInactive();
+                }
+            } else {
+                if (widgetWindow.isVisible()) {
+                    widgetWindow.hide();
+                }
+            }
+        });
+
+        ipcMain.handle('open-sound-dialog', async () => {
+            const result = await dialog.showOpenDialog(mainWindow, {
+                properties: ['openFile'],
+                filters: [
+                    { name: 'Audio', extensions: ['mp3', 'wav', 'ogg'] }
+                ]
+            });
+            return result.filePaths[0]; // Returns undefined if cancelled
         });
     });
 }
