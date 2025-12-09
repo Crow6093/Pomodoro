@@ -2,6 +2,8 @@
 
 A super cute, pastel-themed Pomodoro timer application built with Electron. Inspired by soft, friendly aesthetics to make productivity a little more delightful.
 
+<img src="assets/Pomodoro.png" width="300" />
+
 ## Features ✨
 
 - **Pastel Aesthetic**: Soft colors, rounded UI, and cute interactions.
