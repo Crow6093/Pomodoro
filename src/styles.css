@@ -113,17 +113,18 @@ body {
 }
 
 /* Main Content */
-main {
+main,
+#ajustes {
     flex: 1;
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
-    /* Reduced vertical padding */
     align-items: center;
     position: relative;
     overflow-y: auto;
-    /* Enable scrolling */
     overflow-x: hidden;
+    width: 100%;
+    /* Ensure full width */
 }
 
 /* Cute Scrollbar */
