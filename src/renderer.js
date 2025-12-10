@@ -23,6 +23,58 @@ const radius = progressRing.r.baseVal.value;
 const circumference = radius * 2 * Math.PI;
 let tasks = []; // Shared task state
 let isWidgetEnabled = true; // Widget toggle state
+let currentLang = 'es'; // Default language
+
+const translations = {
+    es: {
+        navPomodoro: "Pomodoro",
+        navTasks: "Tareas",
+        navSettings: "Ajustes",
+        tasksHeaderPreview: "Tareas",
+        tasksHeaderFull: "Lista de Tareas",
+        newTaskPlaceholder: "Nueva tarea...",
+        settingsDuration: "Duración del Pomodoro",
+        customTimeLabel: "Personalizado (min):",
+        applyBtn: "Aplicar",
+        widgetToggle: "Widget Flotante:",
+        alarmSound: "Sonido de Alarma",
+        selectFile: "Seleccionar Archivo",
+        startBtn: "Iniciar",
+        pauseBtn: "Pausa",
+        emptyTasks: "No olvides ir a la pestaña de tareas para poner una nueva tarea ✨",
+        pomodoroComplete: "Pomodoro Completado!",
+        greatJob: "¡Buen trabajo!",
+        timeAdded: "Tiempo Añadido",
+        fiveMinAdded: "+5 Minutos añadidos!",
+        timeUpdated: "Tiempo Actualizado",
+        timerSetTo: "Temporizador ajustado a",
+        minutes: "minutos"
+    },
+    en: {
+        navPomodoro: "Pomodoro",
+        navTasks: "Tasks",
+        navSettings: "Settings",
+        tasksHeaderPreview: "Tasks",
+        tasksHeaderFull: "Task List",
+        newTaskPlaceholder: "New task...",
+        settingsDuration: "Pomodoro Duration",
+        customTimeLabel: "Custom (min):",
+        applyBtn: "Apply",
+        widgetToggle: "Floating Widget:",
+        alarmSound: "Alarm Sound",
+        selectFile: "Select File",
+        startBtn: "Start",
+        pauseBtn: "Pause",
+        emptyTasks: "Don't forget to go to the tasks tab to add a new task ✨",
+        pomodoroComplete: "Pomodoro Complete!",
+        greatJob: "Great job!",
+        timeAdded: "Time Added",
+        fiveMinAdded: "+5 Minutes added!",
+        timeUpdated: "Time Updated",
+        timerSetTo: "Timer set to",
+        minutes: "minutes"
+    }
+};
 
 // Initialize Ring
 progressRing.style.strokeDasharray = `${circumference} ${circumference}`;
@@ -74,7 +126,8 @@ function startTimer() {
             isRunning = false;
 
             // Completion Logic
-            new Notification('Pomodoro Complete!', { body: 'Great job!' });
+            // Completion Logic
+            new Notification(translations[currentLang].pomodoroComplete, { body: translations[currentLang].greatJob });
             const { ipcRenderer } = require('electron');
             ipcRenderer.send('timer-finished');
 
@@ -161,7 +214,7 @@ btnAdd.addEventListener('click', () => {
         totalTime += 5 * 60; // Update total duration so the ring scales correctly 
         // Usually extend current session. keeping it simple.
         updateTimerDisplay();
-        new Notification('Time Added', { body: '+5 Minutes added!' });
+        new Notification(translations[currentLang].timeAdded, { body: translations[currentLang].fiveMinAdded });
 
         // Floating +5 Animation
         const floatingEl = document.createElement('div');
@@ -242,7 +295,7 @@ function renderTasks() {
     if (incompleteTasks.length === 0) {
         taskList.innerHTML = `
             <div class="task-item" style="justify-content: center; text-align: center; color: #90A4AE; font-size: 0.9rem;">
-                <span>No olvides ir a la pestaña de tareas para poner una nueva tarea ✨</span>
+                <span>${translations[currentLang].emptyTasks}</span>
             </div>
         `;
     } else {
@@ -344,8 +397,9 @@ btnSetCustom.addEventListener('click', () => {
     if (minutes > 0) {
         timeButtons.forEach(b => b.classList.remove('active')); // Deselect others
         setTimer(minutes);
+
         // Maybe visual feedback?
-        new Notification('Time Updated', { body: `Timer set to ${minutes} minutes` });
+        new Notification(translations[currentLang].timeUpdated, { body: `${translations[currentLang].timerSetTo} ${minutes} ${translations[currentLang].minutes}` });
     }
 });
 
@@ -377,3 +431,46 @@ try {
 } catch (e) {
     console.error("IPC not available", e);
 }
+
+
+// Language Switching Logic
+const langEs = document.getElementById('lang-es');
+const langEn = document.getElementById('lang-en');
+if (langEs && langEn) {
+    langEs.addEventListener('click', () => changeLanguage('es'));
+    langEn.addEventListener('click', () => changeLanguage('en'));
+}
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+
+    // Update static elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+            el.textContent = t[key];
+        }
+    });
+
+    // Update specific attributes like placeholders
+    const taskInput = document.getElementById('new-task-input-full');
+    if (taskInput) {
+        taskInput.placeholder = t.newTaskPlaceholder;
+    }
+
+    // Refresh dynamic content
+    renderTasks();
+
+    // Update Flags UI
+    if (lang === 'es') {
+        langEs.classList.add('active');
+        langEn.classList.remove('active');
+    } else {
+        langEn.classList.add('active');
+        langEs.classList.remove('active');
+    }
+}
+
+// Initialize Language (Optional: Load from storage)
+changeLanguage('es');

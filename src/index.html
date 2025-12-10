@@ -14,6 +14,12 @@
 
     <!-- Custom Title Bar -->
     <div class="title-bar">
+        <div class="language-flags" style="display: flex; gap: 10px;">
+            <span id="lang-es" class="lang-flag" role="button" title="Español"
+                style="cursor: pointer; font-size: 1.2rem;">🇪🇸</span>
+            <span id="lang-en" class="lang-flag" role="button" title="English"
+                style="cursor: pointer; font-size: 1.2rem;">🇬🇧</span>
+        </div>
         <div class="traffic-lights">
             <div class="traffic-light minimize" id="btn-minimize"></div>
             <div class="traffic-light close" id="btn-close"></div>
@@ -24,15 +30,15 @@
     <nav class="top-nav">
         <div class="nav-item active" data-tab="pomodoro">
             <div class="icon">🍅</div>
-            <span>Pomodoro</span>
+            <span data-i18n="navPomodoro">Pomodoro</span>
         </div>
         <div class="nav-item" data-tab="tareas">
             <div class="icon">📜</div>
-            <span>Tareas</span>
+            <span data-i18n="navTasks">Tareas</span>
         </div>
         <div class="nav-item" data-tab="ajustes">
             <div class="icon">📊</div>
-            <span>Ajustes</span>
+            <span data-i18n="navSettings">Ajustes</span>
         </div>
     </nav>
 
@@ -64,7 +70,7 @@
 
         <div class="tasks-container">
             <div class="tasks-header">
-                <h3>Tareas</h3>
+                <h3 data-i18n="tasksHeaderPreview">Tareas</h3>
             </div>
 
 
@@ -83,7 +89,7 @@
     <div id="tareas" class="tab-content" style="display: none;">
         <div class="tasks-container" style="height: 100%; box-shadow: none;">
             <div class="tasks-header">
-                <h3>Lista de Tareas</h3>
+                <h3 data-i18n="tasksHeaderFull">Lista de Tareas</h3>
             </div>
 
             <div id="add-task-form-full" style="display: none; padding: 10px; border-bottom: 1px solid #eee;">
@@ -99,7 +105,7 @@
 
     <div id="ajustes" class="tab-content" style="display: none;">
         <div class="settings-container" style="text-align: center; padding: 20px;">
-            <h3>Duración del Pomodoro</h3>
+            <h3 data-i18n="settingsDuration">Duración del Pomodoro</h3>
             <div class="time-options">
                 <button class="btn-time" data-time="15">15 min</button>
                 <button class="btn-time active" data-time="25">25 min</button>
@@ -107,14 +113,15 @@
             </div>
 
             <div class="custom-time">
-                <label>Personalizado (min):</label>
+                <label data-i18n="customTimeLabel">Personalizado (min):</label>
                 <input type="number" id="custom-time-input" min="1" max="120" placeholder="Ej. 60">
-                <button id="btn-set-custom" class="btn-small">Aplicar</button>
+                <button id="btn-set-custom" class="btn-small" data-i18n="applyBtn">Aplicar</button>
             </div>
 
             <div class="setting-item"
                 style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <label for="widget-toggle" style="font-size: 1.1rem; font-weight: 600;">Widget Flotante:</label>
+                <label for="widget-toggle" style="font-size: 1.1rem; font-weight: 600;" data-i18n="widgetToggle">Widget
+                    Flotante:</label>
                 <label class="switch">
                     <input type="checkbox" id="widget-toggle" checked>
                     <span class="slider round"></span>
@@ -122,10 +129,11 @@
             </div>
 
             <div class="setting-item" style="margin-top: 15px; text-align: center;">
-                <h4 style="margin: 0 0 10px 0; color: #546E7A;">Sonido de Alarma</h4>
+                <h4 style="margin: 0 0 10px 0; color: #546E7A;" data-i18n="alarmSound">Sonido de Alarma</h4>
                 <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
                     <button id="btn-select-sound" class="btn-small"
-                        style="background:var(--accent-yellow); color: #546E7A;">Seleccionar Archivo</button>
+                        style="background:var(--accent-yellow); color: #546E7A;" data-i18n="selectFile">Seleccionar
+                        Archivo</button>
                     <span id="current-sound-label"
                         style="font-size: 0.9rem; opacity: 0.7; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Default</span>
                     <button id="btn-reset-sound"
@@ -139,8 +147,8 @@
 
     <!-- Bottom Controls -->
     <footer class="controls">
-        <button id="btn-start" class="btn btn-main">Iniciar</button>
-        <button id="btn-pause" class="btn btn-secondary">Pausa</button>
+        <button id="btn-start" class="btn btn-main" data-i18n="startBtn">Iniciar</button>
+        <button id="btn-pause" class="btn btn-secondary" data-i18n="pauseBtn">Pausa</button>
         <button id="btn-add" class="btn btn-icon">⏰</button>
     </footer>
 
