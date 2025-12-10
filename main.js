@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 let widgetWindow;
@@ -80,8 +81,8 @@ if (!gotTheLock) {
         });
 
         ipcMain.on('close-app', () => {
-            if (mainWindow) mainWindow.close();
-            // App will close naturally due to window-all-closed
+            // Force quit everything
+            app.quit();
         });
 
         ipcMain.on('update-timer', (event, { time, percent, enabled }) => {
@@ -115,6 +116,35 @@ if (!gotTheLock) {
                 ]
             });
             return result.filePaths[0]; // Returns undefined if cancelled
+        });
+
+        // Config Persistence
+        const configPath = path.join(app.getPath('userData'), 'config.json');
+
+        ipcMain.handle('get-config', async () => {
+            try {
+                if (fs.existsSync(configPath)) {
+                    const data = fs.readFileSync(configPath, 'utf8');
+                    return JSON.parse(data);
+                }
+            } catch (error) {
+                console.error("Error reading config:", error);
+            }
+            // Return defaults if no config or error
+            return {
+                language: 'es',
+                widgetEnabled: true
+            };
+        });
+
+        ipcMain.handle('save-config', async (event, config) => {
+            try {
+                fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+                return true;
+            } catch (error) {
+                console.error("Error saving config:", error);
+                return false;
+            }
         });
     });
 }

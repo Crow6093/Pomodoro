@@ -14,12 +14,6 @@
 
     <!-- Custom Title Bar -->
     <div class="title-bar">
-        <div class="language-flags" style="display: flex; gap: 10px;">
-            <span id="lang-es" class="lang-flag" role="button" title="Español"
-                style="cursor: pointer; font-size: 1.2rem;">🇪🇸</span>
-            <span id="lang-en" class="lang-flag" role="button" title="English"
-                style="cursor: pointer; font-size: 1.2rem;">🇬🇧</span>
-        </div>
         <div class="traffic-lights">
             <div class="traffic-light minimize" id="btn-minimize"></div>
             <div class="traffic-light close" id="btn-close"></div>
@@ -105,6 +99,27 @@
 
     <div id="ajustes" class="tab-content" style="display: none;">
         <div class="settings-container" style="text-align: center; padding: 20px;">
+            <div class="language-flags"
+                style="display: flex; gap: 15px; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <div id="lang-es" class="lang-flag" role="button" title="Español">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 500" preserveAspectRatio="xMidYMid slice">
+                        <rect width="750" height="500" fill="#AA151B" />
+                        <rect y="125" width="750" height="250" fill="#F1BF00" />
+                    </svg>
+                </div>
+                <div id="lang-en" class="lang-flag" role="button" title="English">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice">
+                        <clipPath id="t">
+                            <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+                        </clipPath>
+                        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+                        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+                        <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4" />
+                        <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+                        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
+                    </svg>
+                </div>
+            </div>
             <h3 data-i18n="settingsDuration">Duración del Pomodoro</h3>
             <div class="time-options">
                 <button class="btn-time" data-time="15">15 min</button>

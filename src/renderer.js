@@ -270,6 +270,7 @@ function addTask(text) {
         completed: false
     };
     tasks.push(task);
+    saveConfig();
     renderTasks();
 }
 
@@ -318,6 +319,7 @@ function renderTasks() {
             const t = tasks.find(x => x.id === id);
             if (t) {
                 t.completed = e.target.checked;
+                saveConfig();
                 renderTasks();
             }
         });
@@ -327,6 +329,7 @@ function renderTasks() {
 // Global Delete Function
 window.deleteTask = function (id) {
     tasks = tasks.filter(t => t.id !== id);
+    saveConfig();
     renderTasks();
 };
 
@@ -377,6 +380,7 @@ if (widgetToggle) {
     widgetToggle.addEventListener('change', (e) => {
         isWidgetEnabled = e.target.checked;
         updateTimerDisplay(); // Force update to notify main process immediately
+        saveConfig();
     });
 }
 
@@ -470,7 +474,49 @@ function changeLanguage(lang) {
         langEn.classList.add('active');
         langEs.classList.remove('active');
     }
+
+    // Save new language preference
+    saveConfig();
 }
 
-// Initialize Language (Optional: Load from storage)
-changeLanguage('es');
+function saveConfig() {
+    try {
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.invoke('save-config', {
+            language: currentLang,
+            widgetEnabled: isWidgetEnabled,
+            tasks: tasks
+        });
+    } catch (e) {
+        console.error("Failed to save config", e);
+    }
+}
+
+// Initialize Application with Config
+(async () => {
+    try {
+        const { ipcRenderer } = require('electron');
+        const config = await ipcRenderer.invoke('get-config');
+
+        // Apply Config
+        if (config.language) {
+            changeLanguage(config.language);
+        } else {
+            changeLanguage('es');
+        }
+
+        if (typeof config.widgetEnabled !== 'undefined') {
+            isWidgetEnabled = config.widgetEnabled;
+            if (widgetToggle) widgetToggle.checked = isWidgetEnabled;
+            updateTimerDisplay();
+        }
+
+        if (config.tasks) {
+            tasks = config.tasks;
+            renderTasks();
+        }
+    } catch (e) {
+        console.error("Failed to load config", e);
+        changeLanguage('es');
+    }
+})();
