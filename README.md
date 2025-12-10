@@ -23,8 +23,15 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
 - **Completion Alerts**:
   - Window restores and shakes when the timer ends.
   - Plays your chosen alarm sound.
+- **Multi-Language Support**:
+  - Fully translated interface in **English** and **Spanish**.
+  - Visual language switcher with cute circular flags in settings.
+- **Data Persistence**:
+  - **Auto-Save Settings**: Remembers your language preference and widget settings automatically (saved to `config.json`).
+  - **Persistent Tasks**: Your storage list survives restarts! Tasks are saved instantly when added, modified, or deleted.
 - **Custom Window**:
   - Frameless design with custom, colored window controls.
+  - **Robust Performance**: Optimized resource usage and reliable closure logic.
   - Single-instance lock (bringing the existing window to front if you try to open it again).
 
 ## Interface 📸
