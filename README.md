@@ -9,16 +9,20 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
 ## Features ✨
 
 - **Pastel Aesthetic**: Soft colors, rounded UI, and cute interactions.
-- **Custom Timer**:
-  - Preset durations: 15, 25, 35 minutes.
-  - Custom duration input.
-  - **Quick Add**: Easily add +5 minutes to your current session.
+  - **Cute Companions**: Adorable animated cats (GatoPomodoro & GatoLibro) to keep you company while you focus.
+- **Enhanced Timer**:
+  - **Presets & Custom**: Choose from 15, 25, 35 minutes or set your own time.
+  - **Visual Urgency**: The progress ring turns to a soft red when less than 10% of time remains.
+  - **Quick Add**: Easily add +5 minutes with a fun floating animation.
 - **Task Management**:
   - Integrated To-Do list.
   - **Focus Mode**: Sees only the top 2 incomplete tasks on the timer screen to reduce overwhelm.
+- **Productivity Features**:
+  - **Floating Widget**: Enable a mini-timer widget in settings to keep track of time while working in other apps.
+  - **Custom Alarm**: Upload your own audio file for the timer completion sound.
 - **Completion Alerts**:
   - Window restores and shakes when the timer ends.
-  - Plays a cute alarm sound.
+  - Plays your chosen alarm sound.
 - **Custom Window**:
   - Frameless design with custom, colored window controls.
   - Single-instance lock (bringing the existing window to front if you try to open it again).
