@@ -115,7 +115,59 @@ if (!gotTheLock) {
                     { name: 'Audio', extensions: ['mp3', 'wav', 'ogg'] }
                 ]
             });
-            return result.filePaths[0]; // Returns undefined if cancelled
+
+            if (result.canceled || result.filePaths.length === 0) {
+                return null;
+            }
+
+            const sourcePath = result.filePaths[0];
+            const userDataPath = app.getPath('userData');
+            const customSoundsDir = path.join(userDataPath, 'custom_sounds');
+
+            // Ensure directory exists
+            if (!fs.existsSync(customSoundsDir)) {
+                fs.mkdirSync(customSoundsDir, { recursive: true });
+            }
+
+            // Create unique filename
+            const ext = path.extname(sourcePath);
+            const fileName = `sound_${Date.now()}${ext}`;
+            const destPath = path.join(customSoundsDir, fileName);
+
+            try {
+                fs.copyFileSync(sourcePath, destPath);
+                return destPath;
+            } catch (error) {
+                console.error("Error copying sound file:", error);
+                return null;
+            }
+        });
+
+        ipcMain.handle('delete-custom-sound', async (event, filePath) => {
+            if (!filePath) return false;
+
+            // Security check: ensure file is within custom_sounds dir
+            const userDataPath = app.getPath('userData');
+            const customSoundsDir = path.join(userDataPath, 'custom_sounds');
+
+            // Normalize paths for comparison
+            const normalizedFilePath = path.normalize(filePath);
+            const normalizedDir = path.normalize(customSoundsDir);
+
+            if (!normalizedFilePath.startsWith(normalizedDir)) {
+                console.error("Attempted to delete file outside custom_sounds directory:", filePath);
+                return false;
+            }
+
+            try {
+                if (fs.existsSync(normalizedFilePath)) {
+                    fs.unlinkSync(normalizedFilePath);
+                    return true;
+                }
+            } catch (error) {
+                console.error("Error deleting sound file:", error);
+            }
+            return false;
         });
 
         // Config Persistence

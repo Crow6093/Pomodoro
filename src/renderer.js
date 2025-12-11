@@ -355,7 +355,11 @@ if (localStorage.getItem('customAlarm')) {
 }
 
 if (btnResetSound) {
-    btnResetSound.addEventListener('click', () => {
+    btnResetSound.addEventListener('click', async () => {
+        const currentPath = localStorage.getItem('customAlarm');
+        if (currentPath) {
+            await ipcRenderer.invoke('delete-custom-sound', currentPath);
+        }
         localStorage.removeItem('customAlarm');
         currentSoundLabel.textContent = 'Default';
         btnResetSound.style.display = 'none';
@@ -364,11 +368,23 @@ if (btnResetSound) {
 
 if (btnSelectSound) {
     btnSelectSound.addEventListener('click', async () => {
+        // If there is already a custom sound, we might want to delete it before selecting a new one?
+        // Or wait until the new one is confirmed. let's keep it simple: just overwrite the reference.
+        // Ideally we should clean up the old one if it exists to avoid clutter.
+        const oldPath = localStorage.getItem('customAlarm');
+
         const filePath = await ipcRenderer.invoke('open-sound-dialog');
+
         if (filePath) {
+            // New file selected and copied successfully
+            if (oldPath && oldPath !== filePath) {
+                await ipcRenderer.invoke('delete-custom-sound', oldPath);
+            }
+
             localStorage.setItem('customAlarm', filePath);
             currentSoundLabel.textContent = filePath.split(/[/\\]/).pop();
             btnResetSound.style.display = 'inline-block';
+
             // Optional preview
             const audio = new Audio(filePath);
             audio.play().catch(e => console.error(e));
