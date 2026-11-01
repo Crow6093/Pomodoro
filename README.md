@@ -10,10 +10,16 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
 
 - **Pastel Aesthetic**: Soft colors, rounded UI, and cute interactions.
   - **Cute Companions**: Adorable animated cats (GatoPomodoro & GatoLibro) to keep you company while you focus.
-- **Enhanced Timer**:
+- **Enhanced Pomodoro Timer**:
   - **Presets & Custom**: Choose from 15, 25, 35 minutes or set your own time.
   - **Visual Urgency**: The progress ring turns to a soft red when less than 10% of time remains.
   - **Quick Add**: Easily add +5 minutes with a fun floating animation.
+- **Stopwatch / Cronómetro ⏱️**:
+  - **Precision Timing**: Stopwatch tracking minutes, seconds, and centiseconds with a smooth circular 60-second progress ring.
+  - **Named Time Records**: Pause or record laps anytime and assign custom labels/names to each record, with friendly auto-naming defaults.
+  - **Flexible Controls**: Start, pause, resume, save records on the fly, or stop completely and reset back to zero.
+  - **Records History**: Dedicated card displaying chronological entries with custom titles, timestamps, styled time badges, and individual or bulk delete actions.
+  - **Persistent Storage**: All saved stopwatch records persist across restarts in `config.json`.
 - **Task Management**:
   - Integrated To-Do list.
   - **Focus Mode**: Sees only the top 2 incomplete tasks on the timer screen to reduce overwhelm.
@@ -28,7 +34,7 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
   - Visual language switcher with cute circular flags in settings.
 - **Data Persistence**:
   - **Auto-Save Settings**: Remembers your language preference and widget settings automatically (saved to `config.json`).
-  - **Persistent Tasks**: Your storage list survives restarts! Tasks are saved instantly when added, modified, or deleted.
+  - **Persistent Tasks & Records**: Tasks and stopwatch records survive restarts and are saved instantly!
 - **Custom Window**:
   - Frameless design with custom, colored window controls.
   - **Robust Performance**: Optimized resource usage and reliable closure logic.
@@ -36,9 +42,9 @@ A super cute, pastel-themed Pomodoro timer application built with Electron. Insp
 
 ## Interface 📸
 
-| Pomodoro Timer | Tasks | Settings |
-|:---:|:---:|:---:|
-| <img src="assets/Ui_Pomodoro.png" width="300" /> | <img src="assets/Ui_Tareas.png" width="300" /> | <img src="assets/Ui_Ajustes.png" width="300" /> |
+| Pomodoro Timer | Stopwatch | Tasks | Settings |
+|:---:|:---:|:---:|:---:|
+| <img src="assets/Ui_Pomodoro.png" width="220" /> | <img src="assets/Ui_Crono.png" width="220" /> | <img src="assets/Ui_Tareas.png" width="220" /> | <img src="assets/Ui_Ajustes.png" width="220" /> |
 
 ## Installation 🛠️
 
