@@ -28,6 +28,7 @@ let currentLang = 'es'; // Default language
 const translations = {
     es: {
         navPomodoro: "Pomodoro",
+        navStopwatch: "Cronómetro",
         navTasks: "Tareas",
         navSettings: "Ajustes",
         tasksHeaderPreview: "Tareas",
@@ -41,6 +42,18 @@ const translations = {
         selectFile: "Seleccionar Archivo",
         startBtn: "Iniciar",
         pauseBtn: "Pausa",
+        resumeBtn: "Reanudar",
+        saveRecordBtn: "Guardar",
+        stopAllBtn: "Parar del todo",
+        stopwatchReady: "Listo",
+        stopwatchRunning: "En marcha ✨",
+        stopwatchPaused: "Pausado ⏸️",
+        recordNamePlaceholder: "Nombre del registro...",
+        recordsHeader: "Registros",
+        clearAllRecords: "Borrar todos",
+        emptyRecords: "No hay registros guardados aún ⏱️",
+        recordSaved: "¡Registro guardado! ✨",
+        defaultRecordName: "Registro",
         emptyTasks: "No olvides ir a la pestaña de tareas para poner una nueva tarea ✨",
         pomodoroComplete: "Pomodoro Completado!",
         greatJob: "¡Buen trabajo!",
@@ -52,6 +65,7 @@ const translations = {
     },
     en: {
         navPomodoro: "Pomodoro",
+        navStopwatch: "Stopwatch",
         navTasks: "Tasks",
         navSettings: "Settings",
         tasksHeaderPreview: "Tasks",
@@ -65,6 +79,18 @@ const translations = {
         selectFile: "Select File",
         startBtn: "Start",
         pauseBtn: "Pause",
+        resumeBtn: "Resume",
+        saveRecordBtn: "Save",
+        stopAllBtn: "Stop Completely",
+        stopwatchReady: "Ready",
+        stopwatchRunning: "Running ✨",
+        stopwatchPaused: "Paused ⏸️",
+        recordNamePlaceholder: "Record name...",
+        recordsHeader: "Records",
+        clearAllRecords: "Clear all",
+        emptyRecords: "No saved records yet ⏱️",
+        recordSaved: "Record saved! ✨",
+        defaultRecordName: "Record",
         emptyTasks: "Don't forget to go to the tasks tab to add a new task ✨",
         pomodoroComplete: "Pomodoro Complete!",
         greatJob: "Great job!",
@@ -179,21 +205,30 @@ navItems.forEach(item => {
 
         item.classList.add('active');
         const tabId = item.getAttribute('data-tab');
-        document.getElementById(tabId).style.display = 'block';
+        const targetTab = document.getElementById(tabId);
+        const controlsFooter = document.querySelector('.controls');
 
         if (tabId === 'pomodoro') {
-            document.getElementById('pomodoro').style.display = 'flex';
+            if (targetTab) targetTab.style.display = 'flex';
+            if (controlsFooter) controlsFooter.style.display = 'flex';
             btnStart.style.display = '';
             btnPause.style.display = '';
             btnAdd.style.display = '';
             btnAdd.innerText = '⏰'; // Clock icon for adding time
+        } else if (tabId === 'cronometro') {
+            if (targetTab) targetTab.style.display = 'flex';
+            if (controlsFooter) controlsFooter.style.display = 'none';
         } else if (tabId === 'tareas') {
+            if (targetTab) targetTab.style.display = 'block';
+            if (controlsFooter) controlsFooter.style.display = 'flex';
             btnStart.style.display = 'none';
             btnPause.style.display = 'none';
             btnAdd.style.display = '';
             btnAdd.innerText = '+'; // Plus icon for adding task
         } else {
             // Ajustes
+            if (targetTab) targetTab.style.display = 'block';
+            if (controlsFooter) controlsFooter.style.display = 'none';
             btnStart.style.display = 'none';
             btnPause.style.display = 'none';
             btnAdd.style.display = 'none';
@@ -478,9 +513,15 @@ function changeLanguage(lang) {
     if (taskInput) {
         taskInput.placeholder = t.newTaskPlaceholder;
     }
+    const swRecordInput = document.getElementById('sw-record-input');
+    if (swRecordInput) {
+        swRecordInput.placeholder = t.recordNamePlaceholder;
+    }
 
     // Refresh dynamic content
     renderTasks();
+    renderStopwatchRecords();
+    updateStopwatchButtons();
 
     // Update Flags UI
     if (lang === 'es') {
@@ -501,11 +542,287 @@ function saveConfig() {
         ipcRenderer.invoke('save-config', {
             language: currentLang,
             widgetEnabled: isWidgetEnabled,
-            tasks: tasks
+            tasks: tasks,
+            stopwatchRecords: stopwatchRecords
         });
     } catch (e) {
         console.error("Failed to save config", e);
     }
+}
+
+// ===================================================
+// Stopwatch / Cronómetro Logic
+// ===================================================
+const swMinSec = document.getElementById('sw-min-sec');
+const swMs = document.getElementById('sw-ms');
+const swStatus = document.getElementById('sw-status');
+const swProgressRing = document.querySelector('.sw-progress-ring__circle');
+const swRecordInput = document.getElementById('sw-record-input');
+const swBtnStart = document.getElementById('sw-btn-start');
+const swBtnStartText = document.getElementById('sw-btn-start-text');
+const swBtnRecord = document.getElementById('sw-btn-record');
+const swBtnStop = document.getElementById('sw-btn-stop');
+const swRecordsList = document.getElementById('sw-records-list');
+const swRecordsCount = document.getElementById('sw-records-count');
+const swBtnClearAll = document.getElementById('sw-btn-clear-all');
+
+let swInterval = null;
+let swStartTime = 0;
+let swElapsed = 0; // Milliseconds
+let swState = 'idle'; // 'idle' | 'running' | 'paused'
+let stopwatchRecords = [];
+const swRadius = 66;
+const swCircumference = 2 * Math.PI * swRadius; // ~414.69
+
+if (swProgressRing) {
+    swProgressRing.style.strokeDasharray = `${swCircumference} ${swCircumference}`;
+    swProgressRing.style.strokeDashoffset = `${swCircumference}`;
+}
+
+function formatStopwatchTime(totalMs) {
+    const totalSeconds = Math.floor(totalMs / 1000);
+    const ms = Math.floor((totalMs % 1000) / 10);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor((totalSeconds / 60) % 60);
+    const hours = Math.floor(totalSeconds / 3600);
+
+    const pad = (n) => (n < 10 ? '0' + n : '' + n);
+
+    if (hours > 0) {
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
+    }
+    return `${pad(minutes)}:${pad(seconds)}.${pad(ms)}`;
+}
+
+function updateStopwatchDisplay() {
+    const totalSeconds = Math.floor(swElapsed / 1000);
+    const ms = Math.floor((swElapsed % 1000) / 10);
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor((totalSeconds / 60) % 60);
+    const hours = Math.floor(totalSeconds / 3600);
+
+    const pad = (n) => (n < 10 ? '0' + n : '' + n);
+
+    if (swMinSec) {
+        if (hours > 0) {
+            swMinSec.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        } else {
+            swMinSec.textContent = `${pad(minutes)}:${pad(seconds)}`;
+        }
+    }
+    if (swMs) {
+        swMs.textContent = `.${pad(ms)}`;
+    }
+
+    if (swProgressRing) {
+        // Complete circle every 60 seconds
+        const currentSecondMs = swElapsed % 60000;
+        const percent = (currentSecondMs / 60000) * 100;
+        const offset = swCircumference - (percent / 100) * swCircumference;
+        swProgressRing.style.strokeDashoffset = offset;
+    }
+}
+
+function updateStopwatchButtons() {
+    const t = translations[currentLang];
+    if (!swBtnStart || !swBtnStartText || !swBtnRecord || !swBtnStop || !swStatus) return;
+
+    if (swState === 'idle') {
+        swBtnStart.className = 'btn btn-main sw-btn';
+        swBtnStartText.textContent = t.startBtn;
+        swBtnRecord.style.display = 'none';
+        swBtnStop.style.display = 'none';
+
+        swStatus.textContent = t.stopwatchReady;
+        swStatus.className = 'sw-status-pill';
+    } else if (swState === 'running') {
+        swBtnStart.className = 'btn btn-secondary sw-btn';
+        swBtnStartText.textContent = t.pauseBtn;
+        swBtnRecord.style.display = 'flex';
+        swBtnRecord.textContent = t.saveRecordBtn;
+        swBtnStop.style.display = 'flex';
+        swBtnStop.textContent = t.stopAllBtn;
+
+        swStatus.textContent = t.stopwatchRunning;
+        swStatus.className = 'sw-status-pill running';
+    } else if (swState === 'paused') {
+        swBtnStart.className = 'btn btn-main sw-btn';
+        swBtnStartText.textContent = t.resumeBtn;
+        swBtnRecord.style.display = 'flex';
+        swBtnRecord.textContent = t.saveRecordBtn;
+        swBtnStop.style.display = 'flex';
+        swBtnStop.textContent = t.stopAllBtn;
+
+        swStatus.textContent = t.stopwatchPaused;
+        swStatus.className = 'sw-status-pill paused';
+    }
+}
+
+function handleStopwatchStart() {
+    if (swState === 'idle') {
+        swStartTime = Date.now() - swElapsed;
+        swState = 'running';
+        swInterval = setInterval(() => {
+            swElapsed = Date.now() - swStartTime;
+            updateStopwatchDisplay();
+        }, 20);
+        updateStopwatchButtons();
+    } else if (swState === 'running') {
+        // Pause stopwatch
+        if (swInterval) {
+            clearInterval(swInterval);
+            swInterval = null;
+        }
+        swElapsed = Date.now() - swStartTime;
+        swState = 'paused';
+        updateStopwatchDisplay();
+        updateStopwatchButtons();
+    } else if (swState === 'paused') {
+        // Resume stopwatch
+        swStartTime = Date.now() - swElapsed;
+        swState = 'running';
+        swInterval = setInterval(() => {
+            swElapsed = Date.now() - swStartTime;
+            updateStopwatchDisplay();
+        }, 20);
+        updateStopwatchButtons();
+    }
+}
+
+function handleStopwatchStopAll() {
+    if (swInterval) {
+        clearInterval(swInterval);
+        swInterval = null;
+    }
+    swState = 'idle';
+    swElapsed = 0;
+    swStartTime = 0;
+    updateStopwatchDisplay();
+    updateStopwatchButtons();
+    if (swRecordInput) swRecordInput.value = '';
+    if (swProgressRing) swProgressRing.style.strokeDashoffset = `${swCircumference}`;
+}
+
+function handleStopwatchRecord() {
+    if (swElapsed <= 0) return;
+
+    const t = translations[currentLang];
+    const userTyped = swRecordInput ? swRecordInput.value.trim() : '';
+    const recordName = userTyped || `${t.defaultRecordName} #${stopwatchRecords.length + 1}`;
+    const formatted = formatStopwatchTime(swElapsed);
+    const now = new Date();
+    const timeMeta = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const newRecord = {
+        id: Date.now(),
+        name: recordName,
+        time: formatted,
+        ms: swElapsed,
+        timestamp: timeMeta
+    };
+
+    stopwatchRecords.unshift(newRecord);
+    if (swRecordInput) swRecordInput.value = '';
+    renderStopwatchRecords();
+    saveConfig();
+
+    showFloatingToast(t.recordSaved, swBtnRecord);
+}
+
+function renderStopwatchRecords() {
+    if (!swRecordsList) return;
+    swRecordsList.innerHTML = '';
+
+    const count = stopwatchRecords.length;
+    if (swRecordsCount) swRecordsCount.textContent = count;
+    if (swBtnClearAll) swBtnClearAll.style.display = count > 0 ? 'inline-block' : 'none';
+
+    if (count === 0) {
+        swRecordsList.innerHTML = `
+            <div class="sw-empty-state">
+                <span>⏱️</span>
+                <span>${translations[currentLang].emptyRecords}</span>
+            </div>
+        `;
+        return;
+    }
+
+    stopwatchRecords.forEach((record, index) => {
+        const itemNum = count - index;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'sw-record-item';
+        itemEl.innerHTML = `
+            <div class="sw-record-left">
+                <span class="sw-record-num">#${itemNum}</span>
+                <div class="sw-record-details">
+                    <span class="sw-record-name" title="${record.name}">${record.name}</span>
+                    <span class="sw-record-time-meta">${record.timestamp || ''}</span>
+                </div>
+            </div>
+            <div class="sw-record-right">
+                <span class="sw-record-badge">${record.time}</span>
+                <button class="sw-record-del" onclick="deleteStopwatchRecord(${record.id})" title="Borrar">🗑️</button>
+            </div>
+        `;
+        swRecordsList.appendChild(itemEl);
+    });
+}
+
+window.deleteStopwatchRecord = function(id) {
+    stopwatchRecords = stopwatchRecords.filter(r => r.id !== id);
+    renderStopwatchRecords();
+    saveConfig();
+};
+
+function showFloatingToast(text, referenceElement) {
+    const toast = document.createElement('div');
+    toast.textContent = text;
+    toast.className = 'floating-plus-five';
+    toast.style.color = 'var(--text-color)';
+    toast.style.background = 'var(--header-bg)';
+    toast.style.padding = '4px 12px';
+    toast.style.borderRadius = '15px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)';
+    toast.style.fontSize = '0.9rem';
+    toast.style.border = '2px solid var(--accent-yellow)';
+    toast.style.whiteSpace = 'nowrap';
+
+    if (referenceElement) {
+        const rect = referenceElement.getBoundingClientRect();
+        toast.style.left = `${rect.left + rect.width / 2}px`;
+        toast.style.top = `${rect.top - 15}px`;
+        toast.style.transform = 'translate(-50%, 0)';
+    } else {
+        toast.style.left = '50%';
+        toast.style.top = '30%';
+        toast.style.transform = 'translate(-50%, 0)';
+    }
+
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 2200);
+}
+
+// Event Listeners for Stopwatch
+if (swBtnStart) swBtnStart.addEventListener('click', handleStopwatchStart);
+if (swBtnStop) swBtnStop.addEventListener('click', handleStopwatchStopAll);
+if (swBtnRecord) swBtnRecord.addEventListener('click', handleStopwatchRecord);
+if (swBtnClearAll) swBtnClearAll.addEventListener('click', () => {
+    if (stopwatchRecords.length === 0) return;
+    stopwatchRecords = [];
+    renderStopwatchRecords();
+    saveConfig();
+});
+
+if (swRecordInput) {
+    swRecordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            if (swElapsed > 0) {
+                handleStopwatchRecord();
+            }
+        }
+    });
 }
 
 // Initialize Application with Config
@@ -530,6 +847,11 @@ function saveConfig() {
         if (config.tasks) {
             tasks = config.tasks;
             renderTasks();
+        }
+
+        if (config.stopwatchRecords && Array.isArray(config.stopwatchRecords)) {
+            stopwatchRecords = config.stopwatchRecords;
+            renderStopwatchRecords();
         }
     } catch (e) {
         console.error("Failed to load config", e);

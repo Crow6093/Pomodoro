@@ -590,3 +590,367 @@ input:checked+.slider:before {
         opacity: 0;
     }
 }
+
+/* ===================================================
+   Cronómetro / Stopwatch Styles
+   =================================================== */
+#cronometro {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 18px 15px 18px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.cronometro-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Stopwatch Circle Display */
+.sw-circle-outer {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background: var(--white);
+    border-radius: 50%;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 4px 0 10px 0;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.sw-progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.sw-progress-ring__circle {
+    transition: stroke-dashoffset 0.05s linear;
+    stroke-linecap: round;
+}
+
+.sw-timer-text {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.sw-digits {
+    font-weight: 800;
+    color: var(--text-color);
+    display: flex;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+}
+
+#sw-min-sec {
+    font-size: 2.1rem;
+    letter-spacing: -0.5px;
+}
+
+#sw-ms {
+    font-size: 1.15rem;
+    opacity: 0.75;
+    margin-left: 2px;
+}
+
+.sw-status-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 12px;
+    background: #E0F7FA;
+    color: #00838F;
+    margin-top: 2px;
+    transition: all 0.2s ease;
+}
+
+.sw-status-pill.running {
+    background: #E8F5E9;
+    color: #2E7D32;
+    animation: swPulse 1.5s infinite;
+}
+
+.sw-status-pill.paused {
+    background: #FFF3E0;
+    color: #E65100;
+}
+
+@keyframes swPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Record Name Input */
+.sw-input-wrapper {
+    width: 100%;
+    max-width: 350px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+#sw-record-input {
+    width: 100%;
+    padding: 8px 14px;
+    border: 2px solid #E8EAF6;
+    border-radius: 15px;
+    background: var(--white);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+#sw-record-input:focus {
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 0 3px rgba(244, 143, 177, 0.25);
+}
+
+/* Controls Buttons Row */
+.sw-controls-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 350px;
+    margin-bottom: 10px;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sw-btn {
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-family: var(--font-family);
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.sw-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.sw-btn-record {
+    background-color: var(--accent-yellow);
+    color: #5D4037;
+}
+
+.sw-btn-stop {
+    background-color: var(--urgent-red);
+    color: var(--white);
+}
+
+/* Saved Records Card */
+.sw-records-card {
+    background-color: var(--white);
+    width: 100%;
+    max-width: 360px;
+    border-radius: 15px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+    overflow: hidden;
+}
+
+.sw-records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #F0F0F0;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.sw-records-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sw-records-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #90A4AE;
+    font-weight: 700;
+}
+
+.sw-count-badge {
+    background: #ECEFF1;
+    color: #78909C;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+
+.sw-btn-clear {
+    background: none;
+    border: none;
+    color: #EF5350;
+    font-size: 0.75rem;
+    font-family: var(--font-family);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.sw-btn-clear:hover {
+    background: #FFEBEE;
+}
+
+.sw-records-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 2px;
+}
+
+.sw-record-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FAFAFA;
+    border: 1px solid #F0F0F0;
+    border-radius: 12px;
+    padding: 6px 10px;
+    animation: swFadeIn 0.2s ease-out;
+}
+
+@keyframes swFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sw-record-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sw-record-num {
+    background: #FFF9C4;
+    color: #F57F17;
+    font-weight: 800;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 8px;
+    min-width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sw-record-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sw-record-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sw-record-time-meta {
+    font-size: 0.68rem;
+    color: #B0BEC5;
+}
+
+.sw-record-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.sw-record-badge {
+    background: #E0F7FA;
+    color: #00838F;
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 3px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.sw-record-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    opacity: 0.45;
+    padding: 0;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.sw-record-del:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+.sw-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #B0BEC5;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 15px 0;
+    gap: 4px;
+}

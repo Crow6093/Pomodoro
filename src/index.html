@@ -26,6 +26,10 @@
             <div class="icon">🍅</div>
             <span data-i18n="navPomodoro">Pomodoro</span>
         </div>
+        <div class="nav-item" data-tab="cronometro">
+            <div class="icon">⏱️</div>
+            <span data-i18n="navStopwatch">Cronómetro</span>
+        </div>
         <div class="nav-item" data-tab="tareas">
             <div class="icon">📜</div>
             <span data-i18n="navTasks">Tareas</span>
@@ -67,8 +71,6 @@
                 <h3 data-i18n="tasksHeaderPreview">Tareas</h3>
             </div>
 
-
-
             <div class="task-list" id="task-list">
                 <!-- Tasks will be injected here -->
                 <div class="task-item">
@@ -79,6 +81,61 @@
             </div>
         </div>
     </main>
+
+    <!-- Cronómetro Tab -->
+    <div id="cronometro" class="tab-content" style="display: none;">
+        <div class="cronometro-container">
+            <!-- Decorative stars/elements -->
+            <div class="deco-star" style="top: 10px; left: 12px;">⭐</div>
+            <div class="deco-star" style="top: 15px; right: 15px;">⏱️</div>
+
+            <!-- Stopwatch Circle Display -->
+            <div class="sw-circle-outer">
+                <svg class="sw-progress-ring" width="150" height="150">
+                    <circle class="sw-progress-ring__circle-bg" stroke="#EAEAEA" stroke-width="10" fill="white" r="66" cx="75" cy="75" />
+                    <circle class="sw-progress-ring__circle" stroke="#4FC3F7" stroke-width="10" fill="transparent" r="66" cx="75" cy="75" />
+                </svg>
+                <div class="sw-timer-text">
+                    <div class="sw-digits">
+                        <span id="sw-min-sec">00:00</span><span id="sw-ms">.00</span>
+                    </div>
+                    <span id="sw-status" class="sw-status-pill" data-i18n="stopwatchReady">Listo</span>
+                </div>
+            </div>
+
+            <!-- Record Name Input -->
+            <div class="sw-input-wrapper">
+                <input type="text" id="sw-record-input" placeholder="Nombre del registro..." data-i18n="recordNamePlaceholder" maxlength="35">
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="sw-controls-row">
+                <button id="sw-btn-start" class="btn btn-main sw-btn">
+                    <span id="sw-btn-start-text" data-i18n="startBtn">Iniciar</span>
+                </button>
+                <button id="sw-btn-record" class="btn sw-btn sw-btn-record" style="display: none;" data-i18n="saveRecordBtn">
+                    Guardar
+                </button>
+                <button id="sw-btn-stop" class="btn sw-btn sw-btn-stop" style="display: none;" data-i18n="stopAllBtn">
+                    Parar del todo
+                </button>
+            </div>
+
+            <!-- Saved Records Card -->
+            <div class="sw-records-card">
+                <div class="sw-records-header">
+                    <div class="sw-records-title-group">
+                        <h3 data-i18n="recordsHeader">Registros</h3>
+                        <span id="sw-records-count" class="sw-count-badge">0</span>
+                    </div>
+                    <button id="sw-btn-clear-all" class="sw-btn-clear" data-i18n="clearAllRecords" style="display: none;">Borrar todos</button>
+                </div>
+                <div class="sw-records-scroll" id="sw-records-list">
+                    <!-- Records will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="tareas" class="tab-content" style="display: none;">
         <div class="tasks-container" style="height: 100%; box-shadow: none;">
